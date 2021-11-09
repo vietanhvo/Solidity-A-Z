@@ -91,11 +91,13 @@ describe("EtherWallet Contract", function () {
             from: ownerAddress,
         });
 
+        // After the tx from owner to contract done -> check the balance of contract
         const walletBalance = await ethers.provider.getBalance(
             etherWallet.address
         );
         expect(parseInt(walletBalance)).to.equal(amount);
 
+        // When we are checking the balance of contract, the tx from contract to account[1] is done
         const receiverBalanceAfter = await ethers.provider.getBalance(
             accounts[1].address
         );
