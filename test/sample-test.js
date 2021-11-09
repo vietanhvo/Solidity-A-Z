@@ -56,3 +56,48 @@ describe("CRUD Contract", function() {
     assert(false, "Should not destroy a non-existing user");
   })
 });
+
+describe("EtherWallet Contract", function() {
+  let etherWallet = null;
+  let ownerAddress = null;
+  let accounts = null;
+  before(async () => {
+    const EtherWallet = await ethers.getContractFactory("EtherWallet");
+    accounts = await ethers.getSigners();
+    ownerAddress = accounts[0].address;
+    etherWallet = await EtherWallet.deploy(ownerAddress);
+  });
+  
+  it("Should set the deployer is owner", async() => {
+    const walletOwner = await etherWallet.owner();
+    expect(ownerAddress).to.equal(walletOwner);
+  })
+
+  it("Should deposit wei to wallet contract", async() => {
+    await etherWallet.deposit({from: ownerAddress, value: 100});
+    const balance = await ethers.provider.getBalance(etherWallet.address);
+
+    expect(parseInt(balance)).to.equal(100);
+  })
+
+  it("Should transfer wei to another address", async() => {
+    const receiverBalanceBefore = await ethers.provider.getBalance(accounts[1].address);
+    await etherWallet.send(accounts[1].address, 50, {from: ownerAddress});
+
+    const walletBalance = await ethers.provider.getBalance(etherWallet.address);
+    expect(parseInt(walletBalance)).to.equal(50);
+
+    const receiverBalanceAfter = await ethers.provider.getBalance(accounts[1].address);
+    expect(parseInt(receiverBalanceAfter)).to.equal(parseInt(receiverBalanceBefore) + 50);
+  })
+
+  it("Should NOT transfer if tx not sent from owner", async() => {
+    try {
+      await etherWallet.connect(accounts[2]).send(accounts[1].address, 50);
+    } catch (error) {
+      expect(error.message).include("Sender is not the owner");
+      return;
+    }
+    assert(false, "Should NOT transfer if tx not sent from owner");
+  })
+})
