@@ -13,7 +13,8 @@ describe("MultiSignWallet Contract", function () {
         );
         multiSignWalletContract = await MultiSignWalletFactory.deploy(
             [accounts[0].address, accounts[1].address, accounts[2].address],
-            2
+            2,
+            { value: 1000 }
         );
     });
 
@@ -32,5 +33,29 @@ describe("MultiSignWallet Contract", function () {
                 .createTransfer(100, accounts[5].address),
             "Only approvers"
         );
+    });
+
+    it("Should NOT send if the quorum is not reach", async () => {
+        const balanceBefore = ethers.BigNumber.from(
+            await ethers.provider.getBalance(accounts[4].address)
+        );
+        await multiSignWalletContract.sendTransfer(0);
+        const balanceAfter = ethers.BigNumber.from(
+            await ethers.provider.getBalance(accounts[4].address)
+        );
+        expect(balanceAfter.sub(balanceBefore).toNumber()).to.equal(0);
+    });
+
+    it("Should send if quorum is reached", async () => {
+        const balanceBefore = ethers.BigNumber.from(
+            await ethers.provider.getBalance(accounts[4].address)
+        );
+        await multiSignWalletContract.sendTransfer(0);
+        await multiSignWalletContract.connect(accounts[1]).sendTransfer(0);
+        await multiSignWalletContract.sendTransfer(0);
+        const balanceAfter = ethers.BigNumber.from(
+            await ethers.provider.getBalance(accounts[4].address)
+        );
+        expect(balanceAfter.sub(balanceBefore).toNumber()).to.equal(100);
     });
 });

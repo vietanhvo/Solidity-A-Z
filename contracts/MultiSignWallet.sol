@@ -15,7 +15,7 @@ contract MultiSignWallet {
     mapping(uint256 => Transfer) public transfers;
     mapping(address => mapping(uint256 => bool)) public approvals; //approvals[msg.sender][2] = true
 
-    constructor(address[] memory _approvers, uint256 _quorum) {
+    constructor(address[] memory _approvers, uint256 _quorum) payable {
         approvers = _approvers;
         quorum = _quorum;
     }
