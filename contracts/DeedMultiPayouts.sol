@@ -6,7 +6,7 @@ contract DeedMultiPayouts {
     address payable public beneficiary;
     uint256 public earliest;
     uint256 constant PAYOUTS = 4; // Divide the total payout into 4 equal parts
-    uint256 constant INTERVALS = 1; // Can be withdraw after 10 seconds
+    uint256 constant INTERVALS = 1; // Can be withdraw after 1 seconds
     uint256 public paidPayouts; // The number of payouts paid
     uint256 public amounts; // The amount of money for each payout
 

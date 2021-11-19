@@ -5,7 +5,6 @@ describe("DeedMultiPayouts Contract", function () {
     let DeedMultiPayouts;
     let accounts;
     let owner;
-    let deed;
 
     const amount = 100;
 
@@ -14,12 +13,21 @@ describe("DeedMultiPayouts Contract", function () {
         accounts = await ethers.getSigners();
         owner = accounts[0].address;
         //Deploy the contract and deposit 100wei as the amount
-        deed = await DeedMultiPayouts.deploy(owner, accounts[1].address, 1, {
-            value: amount,
-        });
+        // deed = await DeedMultiPayouts.deploy(owner, accounts[1].address, 1, {
+        //     value: amount,
+        // });
     });
 
     it("Should withdraw for all payouts (1)", async () => {
+        const deed = await DeedMultiPayouts.deploy(
+            owner,
+            accounts[1].address,
+            1,
+            {
+                value: amount,
+            }
+        );
+
         for (let i = 0; i < 4; i++) {
             const balanceBefore = ethers.BigNumber.from(
                 await ethers.provider.getBalance(accounts[1].address)
@@ -27,7 +35,7 @@ describe("DeedMultiPayouts Contract", function () {
 
             // Wait until enough time to withdraw
             await new Promise((resolve) => setTimeout(resolve, 1000));
-            await deed.withdraw({ from: owner });
+            await deed.withdraw();
 
             const balanceAfter = ethers.BigNumber.from(
                 await ethers.provider.getBalance(accounts[1].address)
@@ -37,9 +45,15 @@ describe("DeedMultiPayouts Contract", function () {
     });
 
     it("Should withdraw for all payouts (2)", async () => {
-        deed = await DeedMultiPayouts.deploy(owner, accounts[1].address, 1, {
-            value: amount,
-        });
+        const deed = await DeedMultiPayouts.deploy(
+            owner,
+            accounts[1].address,
+            1,
+            {
+                value: amount,
+            }
+        );
+
         for (let i = 0; i < 2; i++) {
             const balanceBefore = ethers.BigNumber.from(
                 await ethers.provider.getBalance(accounts[1].address)
@@ -47,7 +61,7 @@ describe("DeedMultiPayouts Contract", function () {
 
             // Wait until enough time to withdraw
             await new Promise((resolve) => setTimeout(resolve, 2000));
-            await deed.withdraw({ from: owner });
+            await deed.withdraw();
 
             const balanceAfter = ethers.BigNumber.from(
                 await ethers.provider.getBalance(accounts[1].address)
@@ -68,7 +82,7 @@ describe("DeedMultiPayouts Contract", function () {
         );
 
         try {
-            await deed.withdraw({ from: owner });
+            await deed.withdraw();
         } catch (error) {
             expect(error.message).to.include("Too early");
             return;
