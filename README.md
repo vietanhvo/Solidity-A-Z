@@ -13,7 +13,7 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
-This repository contains list of smart contracts below:
+This repository contains list of smart contracts below and these testing code:
 
 1. CRUD
 2. EtherWallet
